@@ -13,10 +13,10 @@ test('直线与斜线十秒均移动1800，松杆中心立即停止',()=>{
  }
  }finally{C.map.obstacles=obstacles;}
 });
-test('切阵保留独立攻击和技能冷却，1秒内拒绝再次切换',()=>{
- const s=quiet(),t=s.teams[0];t.heroes[0].skillReady=8;t.heroes[0].attackReady=2;
+test('切阵保留独立攻击冷却，1秒内拒绝再次切换',()=>{
+ const s=quiet(),t=s.teams[0];t.heroes[0].attackReady=2;
  assert.equal(s.changeFormation(t,1),true);assert.equal(s.changeFormation(t,2),false);
- assert.equal(t.heroes[0].skillReady,8);assert.equal(t.heroes[0].attackReady,2);
+ assert.equal(t.heroes[0].attackReady,2);
  advance(s,1.01);assert.equal(s.changeFormation(t,2),true);
 });
 test('同帧全灭不会按处理顺序制造幸存者，31尘掉落15',()=>{
@@ -31,22 +31,23 @@ test('单包仅拾取一次且累计与携带同时增加；超门槛觉醒排�
  assert.equal(t.offer.ids.length,3);assert.equal(new Set(t.offer.ids).size,3);
  assert.equal(s.choose(t,t.offer.ids[0]),true);assert.equal(t.pending,1);assert.ok(t.offer);
 });
-test('星核争夺暂停、离场后续占、受伤中断、完成后45秒刷新',()=>{
+test('星核争夺暂停、敌队离场后续占、受伤不中断、完成后45秒刷新',()=>{
  const s=quiet();s.time=45;s.core.active=true;const a=s.teams[0],b=s.teams[1];
  a.heroes.forEach(h=>Object.assign(h,{x:1200,y:1600}));b.heroes.forEach(h=>Object.assign(h,{x:1500,y:1600}));
  s.updateCore(1.2);b.heroes[0].x=1200;s.updateCore(.8);assert.equal(s.core.progress[0],1.2);
  b.heroes[0].x=1500;s.updateCore(.8);assert.equal(a.carried,15);assert.equal(s.core.next,90);
  s.core.active=true;s.core.progress[0]=1.9;s.queueDamage(b.heroes[0],a.heroes[0],1,'attack');s.resolveDamage();
- s.updateCore(.1);assert.equal(s.core.progress[0],0);assert.equal(a.carried,15);
+ s.updateCore(.1);assert.equal(s.core.progress[0],0);assert.equal(a.carried,30);
 });
-test('圆阵单体弹道分摊，穿透不分摊',()=>{
+test('圆阵统一承伤，切回楔形立即恢复各英雄独立承伤',()=>{
  const s=quiet();s.time=10;const a=s.teams[0],b=s.teams[1];a.formation=1;
- a.heroes.forEach((h,i)=>Object.assign(h,{x:800+i*24,y:800}));const [x,h,y]=a.heroes;
- s.hit(b.heroes[2],h,{atk:8,formation:.95,skill:1,synergy:1,maxHits:1,slow:0},'attack');s.resolveDamage();
- assert.equal(h.hp,76.28);assert.equal(x.hp,139.2);assert.equal(y.hp,79.2);
- s.hit(b.heroes[1],h,{atk:20,formation:1.1,skill:1,synergy:1,maxHits:2,slow:0},'attack');s.resolveDamage();
- assert.equal(h.hp,56.92);assert.equal(x.hp,139.2);assert.equal(y.hp,79.2);
+ const [tank,mage,support]=a.heroes;
+ s.hit(b.heroes[2],mage,{atk:20,formation:1,bonus:1,maxHits:1},'attack');s.resolveDamage();
+ assert.equal(mage.hp,80);assert.equal(tank.hp,129.6);assert.equal(support.hp,80);
+ s.changeFormation(a,0);s.hit(b.heroes[1],mage,{atk:20,formation:1,bonus:1,maxHits:2},'attack');s.resolveDamage();
+ assert.equal(mage.hp,61.6);assert.equal(tank.hp,129.6);assert.equal(support.hp,80);
 });
+
 test('出生保护跳过伤害；180秒冻结全部后续事件',()=>{
  const s=quiet(),h=s.teams[0].heroes[0];s.queueDamage(null,h,100,'storm');s.resolveDamage();assert.equal(h.hp,140);
  advance(s,180);const time=s.time,hp=h.hp;s.step(C.tick,{x:1,y:0});assert.equal(s.time,time);assert.equal(h.hp,hp);assert.ok(s.ended);
@@ -78,4 +79,19 @@ test('散落星尘按20秒补充，遵守上限、确定种子与安全区',()=>
  a.time=40;a.refreshScatter();assert.equal(a.drops.filter(d=>d.origin==='scatter').length,100);
  a.drops=a.drops.filter(d=>d.origin!=='scatter');a.time=140;a.refreshScatter();
  assert.equal(a.drops.length,12);for(const d of a.drops)assert.ok(R.distance(d,C.map.center)<=R.safeRadius(140)-C.scatter.safeMargin);
+});
+
+test('觉醒门槛为20/40/60，跨越多个门槛排队且最多六次',()=>{
+ const s=quiet(),t=s.teams[0];s.time=10;
+ s.gain(t,19,'fixture');assert.equal(t.pending,0);assert.equal(t.offer,null);
+ s.gain(t,1,'fixture');assert.equal(t.pending,1);assert.equal(t.issued,1);assert.equal(t.offer.ids.length,3);
+ s.choose(t,t.offer.ids[0]);s.gain(t,19,'fixture');assert.equal(t.pending,0);
+ s.gain(t,1,'fixture');assert.equal(t.pending,1);s.gain(t,20,'fixture');assert.equal(t.pending,2);assert.equal(t.issued,3);
+ s.gain(t,60,'fixture');assert.equal(t.issued,6);assert.equal(t.pending,5);s.gain(t,80,'fixture');assert.equal(t.issued,6);assert.equal(t.pending,5);
+});
+test('圆阵承伤与护盾吸收的英雄伤害也不清零或锁定星核进度',()=>{
+ const s=quiet(),t=s.teams[0],enemy=s.teams[1].heroes[1];s.time=45;s.core.active=true;t.formation=1;t.heroes.forEach(h=>Object.assign(h,{x:1200,y:1600}));
+ s.teams.slice(1).forEach(o=>o.heroes.forEach(h=>Object.assign(h,{x:400,y:400})));s.updateCore(1);t.heroes[0].shield=20;
+ s.hit(enemy,t.heroes[1],s.snapshot(enemy),'attack');s.resolveDamage();assert.equal(s.core.progress[0],1);s.updateCore(.5);assert.equal(s.core.progress[0],1.5);
+ t.heroes.forEach(h=>h.x=1800);s.updateCore(.1);assert.equal(s.core.progress[0],0);
 });

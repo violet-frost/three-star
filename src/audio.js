@@ -11,8 +11,8 @@
       const v=own?.04:.018;
       if(type==='attack'){const f=[170,430,570][event.hero||0];this.tone(f,.09,event.hero===0?'triangle':'sine',v,0,f*.55);}
       else if(type==='damage')this.tone(110,.065,'triangle',v*.65,0,70);
-      else if(type==='skill'){[330,440,550].forEach((f,i)=>this.tone(f,.15,'triangle',v,i*.04));}
-      else if(type==='synergy'){[523,659,784].forEach((f,i)=>this.tone(f,.22,'sine',v,i*.05));}
+      else if(type==='formation_charge'){[330,440,550].forEach((f,i)=>this.tone(f,.15,'triangle',v,i*.04));}
+      else if(type==='heal'){this.tone(660,.16,'sine',v*.6);this.tone(880,.2,'sine',v*.5,.08);}
       else if(type==='dust_gain'){this.tone(880,.13,'sine',v);this.tone(1175,.16,'sine',v*.65,.06);}
       else if(type==='formation_changed'){this.tone(330+event.to*70,.13,'triangle',v);}
       else if(type==='hero_dead'||type==='team_eliminated'){this.tone(220,.35,'triangle',v,0,82);}

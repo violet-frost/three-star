@@ -3,17 +3,18 @@ const assert=require('node:assert/strict');
 require('../src/config.js');
 require('../src/rules.js');
 const {Rules:R,Config:C}=globalThis.ThreeStar;
-test('策划伤害核算：穿透、技能和协同',()=>{
-  assert.equal(R.damage(20,8*1.2,1,1.1,1),11.44);
-  assert.equal(R.damage(12,3,1.5,1.1,1),14.85);
-  assert.equal(R.damage(22,2,1,1.1,1.45),31.9);
-  assert.equal(R.damage(1,99,1,.9,1),.9);
+test('伤害核算：普通攻击、阵型倍率及强化弹',()=>{
+ assert.equal(R.damage(20,8*1.2,1,1.5,1),15.6);
+ assert.equal(R.damage(12,3,1,1),9);
+ assert.equal(R.damage(22,2,2,1.5),60);
+ assert.equal(R.damage(1,99,1,.8,1),.8);
 });
-test('圆阵只分摊可保护的单体弹道',()=>{
-  R.shares(5.32,2,true).forEach((v,i)=>assert.ok(Math.abs(v-[3.724,.798,.798][i])<1e-10));
-  assert.deepEqual(R.shares(11.44,2,false),[11.44]);
-  assert.deepEqual(R.shares(5.32,0,true),[5.32]);
+test('楔形第三发伤害恰为同目标普通火焰弹两倍',()=>{
+ const atk=C.heroes[1].atk,def=C.heroes[0].def*C.formations[1].defense;
+ const normal=R.damage(atk,def,1,C.formations[0].attack);
+ assert.equal(R.damage(atk,def,2,C.formations[0].attack),normal*2);
 });
+
 test('暗幕阶段和最终圈边界',()=>{
   assert.equal(R.safeRadius(105),2000); assert.equal(R.safeRadius(150),260);
   assert.equal(R.safeRadius(180),260);assert.equal(R.stormDps(124.99),5);

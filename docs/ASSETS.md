@@ -10,9 +10,9 @@
 
 `arena-floor.png` 是竖向俯视地面图，被映射到2400×3200世界范围。四个碰撞障碍由代码绘制，底图内部不应增加会被误认作实体的墙或大树。
 
-`icon.svg` 为代码绘制的星形图标。技能、护盾、血条、弹道、暗幕、地面星尘由Canvas程序绘制；音乐和音效由WebAudio合成，没有外部音频依赖。
+`icon.svg` 为代码绘制的星形图标。阵型特效、护盾、血条、弹道、暗幕、地面星尘由Canvas程序绘制；音乐和音效由WebAudio合成，没有外部音频依赖。
 
-V0.2.2新增三个手工编写的矢量游戏图标：`formation-wedge.svg` 为锋刃三角，`formation-circle.svg` 为环形星盾，`formation-line.svg` 为双翼箭头。均使用64×64画布、浅金渐变和星尘细节，无外部字体。`config.js` 中的 `icon` 分别填 `wedge`、`circle`、`line`；`app.js` 的 `iconMarkup` 统一加载对应素材，按钮、阵型觉醒、帮助与战绩共用同一文件。替换SVG即可同步修改全部引用处。
+当前三个手工编写的矢量游戏图标：`formation-wedge.svg` 为锋刃三角，`formation-circle.svg` 为环形星盾，`formation-sprout.svg` 为双叶新芽及治疗加号（V0.3.0替换横阵旧箭头）。均使用64×64画布、统一浅金配色及星尘细节（V0.3.1将新芽和治疗加号统一为金色），无外部字体。`config.js` 中的 `icon` 分别填 `wedge`、`circle`、`sprout`；`app.js` 的 `iconMarkup` 统一加载对应素材，按钮、阵型觉醒、帮助与战绩共用同一文件。替换SVG即可同步修改全部引用处。
 
 ## 生成提示词
 

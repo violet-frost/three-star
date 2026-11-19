@@ -17,9 +17,9 @@
       <div class="rule-line"></div>
       <p class="side-intro">移动决定位置<br>阵型决定战术</p>
       <div class="hero-roster">
-        <div><i class="portrait h0"></i><span><b>镇星</b><small>前排战士 · 破阵突进</small></span></div>
-        <div><i class="portrait h1"></i><span><b>荧惑</b><small>火焰法师 · 穿透集火</small></span></div>
-        <div><i class="portrait h2"></i><span><b>重华</b><small>自然辅助 · 绊索控场</small></span></div>
+        <div><i class="portrait h0"></i><span><b>镇星</b><small>前排战士 · 阵型承伤</small></span></div>
+        <div><i class="portrait h1"></i><span><b>荧惑</b><small>火焰法师 · 三发蓄能</small></span></div>
+        <div><i class="portrait h2"></i><span><b>重华</b><small>自然辅助 · 复苏治疗</small></span></div>
       </div>
       <div class="keyboard-guide"><p><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> / 方向键移动</p><p><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> 切换阵型</p><p><kbd>空格</kbd> 暂停　<kbd>F</kbd> 全屏</p></div>
       <p class="side-footnote">一支小队，三种战术。<br>靠近敌人，英雄自动攻击。</p>
@@ -31,8 +31,6 @@
         <div class="menu-cover"></div><div class="menu-shade"></div>
         <div class="menu-heading"><div class="title-star">✦</div><h2>三芒星</h2><p>星 尘 竞 技 场</p></div>
         <div class="menu-bottom">
-          <p class="menu-premise">三英雄小队 · 阵型博弈 · 星尘争夺</p>
-          <div class="menu-spec"><span>单人挑战 · 3支AI</span><span>每局180秒</span></div>
           <button id="start" class="primary large">开始挑战 <span>✦</span></button>
           <div class="menu-secondary"><button data-action="help">操作说明</button><button data-action="settings">设置</button></div>
           <p id="last-result" class="last-result">集结小队，争夺中央星核。</p>
@@ -42,7 +40,7 @@
       <section id="hud" class="hud hidden" aria-label="战斗操作">
         <div class="top-line"><div id="timer" class="timer">03:00</div><button id="pause" aria-label="暂停">Ⅱ</button></div>
         <div id="leaderboard" class="leaderboard"></div>
-        <div class="resource-line"><span id="dust-count">✦ 0</span><div class="growth"><div id="growth-fill"></div></div><span id="growth-label">0 / 25</span></div>
+        <div class="resource-line"><span id="dust-count">✦ 0</span><div class="growth"><div id="growth-fill"></div></div><span id="growth-label">0 / 20</span></div>
         <div class="notification-stack" aria-label="战场提示">
           <div id="core-status" class="core-status">星核将在45秒后出现</div>
           <div id="toast" class="toast hidden" role="status"></div>
@@ -56,12 +54,12 @@
         <div id="joystick" class="joystick" aria-hidden="true"><div class="joystick-arrows">⌃<br><span>‹　›</span><br>⌄</div><div id="stick" class="stick"></div></div>
         <div class="bottom-controls" id="bottom-controls">
           <div class="formation-controls" id="formations">
-            <button data-formation="0" class="formation active"><i data-formation-icon="0" aria-hidden="true"></i><span><b>楔形</b><small>进攻</small></span><em class="key-hint">1</em><div class="cooldown"></div></button>
-            <button data-formation="1" class="formation"><i data-formation-icon="1" aria-hidden="true"></i><span><b>圆阵</b><small>防守</small></span><em class="key-hint">2</em><div class="cooldown"></div></button>
-            <button data-formation="2" class="formation"><i data-formation-icon="2" aria-hidden="true"></i><span><b>横阵</b><small>分散</small></span><em class="key-hint">3</em><div class="cooldown"></div></button>
+            <button data-formation="1" class="formation"><i data-formation-icon="1" aria-hidden="true"></i><span><b>圆阵</b><small>防守</small></span><em class="key-hint">1</em><div class="cooldown"></div></button>
+            <button data-formation="0" class="formation active"><i data-formation-icon="0" aria-hidden="true"></i><span><b>楔形</b><small>进攻</small></span><em class="key-hint">2</em><div class="cooldown"></div></button>
+            <button data-formation="2" class="formation"><i data-formation-icon="2" aria-hidden="true"></i><span><b>横阵</b><small>治疗</small></span><em class="key-hint">3</em><div class="cooldown"></div></button>
           </div>
         </div>
-        <div class="bottom-label" id="formation-description">楔形 · 集火突破</div>
+        <div class="bottom-label" id="formation-description">楔形 · 荧惑蓄能</div>
       </section>
       <div id="countdown" class="countdown hidden"><small id="countdown-caption">小队集结</small><b id="countdown-number">3</b></div>
 
@@ -80,7 +78,7 @@
     <aside class="side right-side">
       <p class="field-heading">战场情报</p><canvas id="tactical-map" width="240" height="320" aria-label="战场总览"></canvas>
       <div class="map-caption"><span>◆ 小队位置</span><span>✦ 中央星核</span></div>
-      <div class="side-objective"><b id="objective-title">争夺星尘，存活至终局</b><p id="objective-description">击败野怪获取星尘，每累计25点获得一次觉醒。中央星核在45秒出现，成功占领获得15点星尘。</p></div>
+      <div class="side-objective"><b id="objective-title">争夺星尘，存活至终局</b><p id="objective-description">击败野怪获取星尘，每累计20点获得一次觉醒。中央星核在45秒出现，成功占领获得15点星尘。</p></div>
       <button id="fullscreen" class="side-button">展开战场 ⛶</button>
     </aside>
   </main>

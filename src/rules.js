@@ -5,8 +5,7 @@
     clamp,round:n=>Math.round((n+Number.EPSILON)*100)/100,
     distance:(a,b)=>Math.hypot(a.x-b.x,a.y-b.y),
     normalize(x,y){const n=Math.hypot(x,y);return n?{x:x/n,y:y/n}:{x:0,y:0};},
-    damage(atk,def,skill=1,formation=1,synergy=1){return R.round(Math.max(1,atk-def)*skill*formation*synergy);},
-    shares(damage,count,protect){return protect&&count?[damage*.7,...Array(count).fill(damage*.3/count)]:[damage];},
+    damage(atk,def,bonus=1,formation=1){return R.round(Math.max(1,atk-def)*bonus*formation);},
     safeRadius(t){const s=C.storm;return s.startRadius-(s.startRadius-s.endRadius)*clamp((t-s.start)/(s.final-s.start),0,1);},
     stormDps(t){let n=0;for(const [time,dps] of C.storm.stages)if(t>=time)n=dps;return n;},
     alive:team=>team.heroes.filter(h=>h.hp>0),
@@ -28,7 +27,7 @@
       }return q;
     },
     move(p,dx,dy,r=0){
-      // Sweep in small steps to prevent fast dash/knockback from crossing walls.
+      // Sweep in small steps to prevent fast movement from crossing walls.
       const steps=Math.max(1,Math.ceil(Math.hypot(dx,dy)/8));let q={x:p.x,y:p.y};
       for(let i=0;i<steps;i++){
         const nx={x:q.x+dx/steps,y:q.y},ny={x:q.x,y:q.y+dy/steps};

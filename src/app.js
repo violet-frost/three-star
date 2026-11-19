@@ -4,7 +4,12 @@
   function read(key,fallback){try{return JSON.parse(localStorage.getItem(key))??fallback;}catch(_){return fallback;}}
   function save(key,value){try{localStorage.setItem(key,JSON.stringify(value));return true;}catch(_){return false;}}
   // All formation references share the same vector assets, including awakening cards.
-  const iconMarkup=icon=>['wedge','circle','line'].includes(icon)?`<img class="formation-icon" src="assets/formation-${icon}.svg" alt="" aria-hidden="true" draggable="false">`:icon;
+  const iconMarkup=icon=>['wedge','circle','sprout'].includes(icon)?`<img class="formation-icon" src="assets/formation-${icon}.svg" alt="" aria-hidden="true" draggable="false">`:icon;
+  const formationHelp=()=>C.formationOrder.map(id=>{const f=C.formations[id],detail=[
+    '荧惑仅在楔形下累计实际发射的火焰弹，每第三发双倍伤害；切阵保留计数。',
+    '镇星的破阵为阵型承伤效果，代全队承受普攻及暗幕伤害，不再突进或击退；镇星阵亡后队友各自承伤。',
+    '重华的复苏为阵型治疗效果，每秒为当前生命数值最低的受伤存活队友回复2点，包含自身；不会复活。'
+  ][id];return `<p><b>${iconMarkup(f.icon)} ${f.name} · ${f.role}</b><br>攻击×${f.attack.toFixed(2)}，防御×${f.defense.toFixed(2)}，移动×${f.move.toFixed(2)}。${detail}</p>`;}).join('');
   const timeLabel=n=>{const seconds=Math.ceil(Math.max(0,n));return `${String(Math.floor(seconds/60)).padStart(2,'0')}:${String(seconds%60).padStart(2,'0')}`;};
   class App{
     constructor(){
@@ -16,6 +21,7 @@
       requestAnimationFrame(now=>this.loop(now));
     }
     bind(){
+      C.formationOrder.forEach((id,index)=>{const button=document.querySelector(`[data-formation="${id}"]`),f=C.formations[id];$('formations').appendChild(button);button.querySelector('.key-hint').textContent=index+1;button.title=`${f.name}：攻击×${f.attack}，防御×${f.defense}，移动×${f.move}；${f.description}`;});
       document.querySelectorAll('[data-formation-icon]').forEach(el=>el.innerHTML=iconMarkup(C.formations[Number(el.dataset.formationIcon)].icon));
       $('start').onclick=()=>this.start();$('restart').onclick=()=>this.start();$('result-return').onclick=()=>this.toMenu();$('pause').onclick=()=>this.pause();$('fullscreen').onclick=()=>this.fullscreen();
       document.querySelectorAll('[data-action]').forEach(b=>b.onclick=()=>{this.audio.unlock();if(b.dataset.action==='help')this.help();else this.showSettings();});
@@ -35,7 +41,7 @@
       window.addEventListener('keydown',e=>{
         if(e.repeat&&[' ','Escape','f','F'].includes(e.key))return;
         if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault();this.audio.unlock();this.keys.add(e.key.toLowerCase());
-        if(['1','2','3'].includes(e.key))this.formation(Number(e.key)-1);
+        if(['1','2','3'].includes(e.key))this.formation(C.formationOrder[Number(e.key)-1]);
         if(e.key===' '||e.key==='Escape'){if(this.mode==='playing')this.pause();else if(this.mode==='paused')this.resume();}
         if(e.key.toLowerCase()==='f')this.fullscreen();
       });
@@ -89,7 +95,6 @@
         if(e.type==='core_captured')this.toast(`${C.teams[e.team].name}占领星核 · 星尘 +15`);
         if(e.type==='phase'){const text={100:'暗幕将在5秒后收缩',105:'暗幕收缩 · 向安全区转移',145:'5秒后进入最终决胜',150:'最终决胜'}[e.phase];this.toast(text);}
         if(e.type==='hero_dead'&&e.team===0)this.toast(`${C.heroes[e.hero].name}已阵亡`);
-        if(e.type==='synergy'&&e.team===0)this.toast('破阵集火 · 荧惑下一击强化',1.5);
         if(e.type==='awakening_selected'&&e.team===0)this.toast(`觉醒 · ${C.awakenings[e.id].name}${e.auto?'（自动选择）':''}`,1.8);
         if(e.type==='team_eliminated'&&e.team===0){this.clearInput();this.toast('小队已淘汰 · 可继续观战',3);const team=this.sim.teams.filter(t=>t.eliminatedAt==null).sort((a,b)=>b.carried-a.carried||a.id-b.id)[0];if(team)this.viewTeam=team.id;}
         if(this.settings.vibration&&navigator.vibrate){if(e.type==='team_eliminated'&&e.team===0)navigator.vibrate(100);else if(e.type==='damage'&&e.hp>=20&&this.sim.teams[0].heroes.some(h=>h.id===e.target))navigator.vibrate(25);}
@@ -102,9 +107,9 @@
       $('timer').textContent=timeLabel(time);$('timer').classList.toggle('final',time<=30);$('timer').classList.toggle('urgent',time<=10);
       const leaderboard=rank.map(({team:o})=>`<div class="leader-entry ${o.id===0?'mine':''} ${o.eliminatedAt!=null?'dead':''}" style="--team-color:${o.color}"><small>${o.symbol} ${o.id===0?'我方':o.name.replace('小队','')}</small><b>${o.eliminatedAt==null?o.carried:o.dustBefore}</b><em aria-label="${R.alive(o).length}名英雄存活，共3名">${R.alive(o).length}/3</em></div>`).join('');
       if($('leaderboard').innerHTML!==leaderboard)$('leaderboard').innerHTML=leaderboard;
-      $('dust-count').textContent='✦ '+(dead?t.dustBefore:t.carried);const next=Math.min(150,(Math.floor(t.earned/25)+1)*25),fill=t.earned>=150?100:(t.earned%25)/25*100;$('growth-fill').style.width=fill+'%';$('growth-label').textContent=t.earned>=150?'觉醒已满':`${t.earned} / ${next}`;
+      $('dust-count').textContent='✦ '+(dead?t.dustBefore:t.carried);const cap=C.awakeningStep*C.awakeningCap,next=Math.min(cap,(Math.floor(t.earned/C.awakeningStep)+1)*C.awakeningStep),full=t.earned>=cap,fill=full?100:(t.earned%C.awakeningStep)/C.awakeningStep*100;$('growth-fill').style.width=fill+'%';$('growth-label').textContent=`${t.earned} / ${next}`;$('growth-label').title=full?'觉醒次数已满':`下次觉醒：累计${next}点星尘`;
       const progress=Math.max(...s.core.progress),pid=s.core.progress.indexOf(progress);$('core-status').textContent=s.core.active?(s.core.contested?'中央星核 · 争夺中':progress>0?`${pid===0?'我方':C.teams[pid].name}占领中 ${Math.min(100,Math.floor(progress/C.core.capture*100))}%`:'中央星核 · 可占领'):`星核 ${Math.max(0,Math.ceil(s.core.next-s.time))}秒后${s.time<45?'出现':'刷新'}`;
-      const heroHtml=t.heroes.map(h=>{const a=h.hp<=0,cd=Math.max(0,h.skillReady-s.time);return `<div class="hero-status ${a?'dead':''}" data-hero="${h.heroType}"><i class="portrait h${h.heroType}"></i><div class="hero-status-info"><b>${h.cfg.name}${h.shield>0?' ◇'+Math.ceil(h.shield):''}</b><div class="health-meter"><div style="width:${h.hp/h.maxHp*100}%"></div></div><small>${a?'已阵亡':Math.ceil(h.hp)+'/'+h.maxHp+' · '+(cd>0?Math.ceil(cd)+'s':h.cfg.skill)}</small></div></div>`;}).join('');if($('hero-panel').innerHTML!==heroHtml){$('hero-panel').innerHTML=heroHtml;$('hero-panel').querySelectorAll('.hero-status').forEach(el=>el.onclick=()=>{if(t.heroes[+el.dataset.hero].hp<=0)this.toast('已阵亡',1);});}
+      const heroHtml=t.heroes.map(h=>{const a=h.hp<=0,effect=h.heroType===1?`蓄能${h.fireballCount}/3`:h.cfg.effect;return `<div class="hero-status ${a?'dead':''}" data-hero="${h.heroType}"><i class="portrait h${h.heroType}"></i><div class="hero-status-info"><b>${h.cfg.name}${h.shield>0?' ◇'+Math.ceil(h.shield):''}</b><div class="health-meter"><div style="width:${h.hp/h.maxHp*100}%"></div></div><small>${a?'已阵亡':Math.ceil(h.hp)+'/'+h.maxHp+' · '+effect}</small></div></div>`;}).join('');if($('hero-panel').innerHTML!==heroHtml){$('hero-panel').innerHTML=heroHtml;$('hero-panel').querySelectorAll('.hero-status').forEach(el=>el.onclick=()=>{if(t.heroes[+el.dataset.hero].hp<=0)this.toast('已阵亡',1);});}
       const cd=Math.max(0,t.formationReady-s.time);document.querySelectorAll('[data-formation]').forEach(b=>{b.classList.toggle('active',+b.dataset.formation===t.formation);const cover=b.querySelector('.cooldown');cover.style.display=cd>0?'grid':'none';cover.textContent=cd.toFixed(1);});
       const description=dead?'观战中 · 对局结束后显示完整排名':iconMarkup(C.formations[t.formation].icon)+C.formations[t.formation].name+' · '+C.formations[t.formation].description;
       if($('formation-description').innerHTML!==description)$('formation-description').innerHTML=description;
@@ -117,9 +122,9 @@
       this.updateOffer(t);
       if(this.mode!=='menu')this.renderer.minimap($('mini'),s,this.viewTeam);this.renderer.minimap($('tactical-map'),s,this.viewTeam);
       $('objective-title').textContent=s.time<45?'击败野怪，积累第一轮星尘':s.time<105?'中央星核 · 高价值争夺':s.time<150?'暗幕收缩 · 保护残存英雄':'最终决胜 · 生存与星尘';
-      $('objective-description').textContent=s.time<45?'击败野怪获取星尘，每累计25点获得一次觉醒。中央星核在45秒出现，成功占领获得15点星尘。':s.time<105?'进入星核范围连续占领2秒可获得15星尘。多队在场暂停占领，受到敌方英雄伤害会清空进度。':s.time<150?'暗幕正在向中央收缩，圈外英雄持续失血。使用圆阵撤退，或切换楔形阵突破包围。':'优先保持小队存活。180秒时按存活状态、携带星尘、存活人数、队伍击杀数依次排名。';
+      $('objective-description').textContent=s.time<45?`击败野怪获取星尘，每累计${C.awakeningStep}点获得一次觉醒。中央星核在45秒出现，成功占领获得15点星尘。`:s.time<105?'进入星核范围连续占领2秒可获得15星尘。多队在场暂停占领，整队离场清零；受到英雄伤害不中断。':s.time<150?'暗幕正在向中央收缩，圈外英雄持续失血。使用圆阵撤退，或切换楔形阵突破包围。':'优先保持小队存活。180秒时按存活状态、携带星尘、存活人数、队伍击杀数依次排名。';
     }
-    nextTutorial(){const t=this.sim.tutorial;if(t.move<120)return '按住战场任意空白处拖动，或使用 WASD 移动';if(!t.formation)return '点击右侧按钮，切换一次阵型';if(!t.damage)return '沿野区箭头靠近野怪，英雄会自动攻击';if(!t.dust)return '靠近金色星尘拾取，累计25点即可觉醒';return '';}
+    nextTutorial(){const t=this.sim.tutorial;if(t.move<120)return '按住战场任意空白处拖动，或使用 WASD 移动';if(!t.formation)return '点击右侧按钮，切换一次阵型';if(!t.damage)return '沿野区箭头靠近野怪，英雄会自动攻击';if(!t.dust)return '靠近金色星尘拾取，累计'+C.awakeningStep+'点即可觉醒';return '';}
     updateOffer(t){
       const offer=t.offer;$('awakening').classList.toggle('hidden',!offer||this.sim.ended);if(!offer){this.offerKey='';return;}
       const valid=new Set(this.sim.validAwakenings(t).map(a=>a.id)),key=offer.created+':'+offer.ids.join(',')+':'+[...valid].join(',');$('choice-time').textContent=Math.max(0,Math.ceil(offer.expires-this.sim.time))+'秒后自动选择';
@@ -136,7 +141,7 @@
     resume(){if(this.mode!=='paused')return;$('modal').classList.add('hidden');this.beginCountdown('准备继续');}
     confirmReturn(){if(this.mode==='playing'){this.mode='paused';this.clearInput();}$('modal').classList.remove('hidden');$('modal-content').innerHTML='<h2>结束本局并返回？</h2><p>本局进度将结束。再次挑战会重新开始。</p><div class="modal-actions"><button id="confirm-exit" class="danger">结束本局并返回</button><button id="cancel-exit">继续本局</button></div>';$('confirm-exit').onclick=()=>{const t=this.sim.teams[0];$('last-result').textContent=`上次挑战：${t.eliminatedAt!=null?'小队淘汰':'提前结束'} · 星尘 ${t.eliminatedAt!=null?t.dustBefore:t.carried}`;this.toMenu();};$('cancel-exit').onclick=()=>this.resume();}
     help(){
-      $('modal').classList.remove('hidden');$('modal-content').innerHTML=`<h2>出征手册</h2><h3>带领整支小队</h3><p>按住战场任意空白处呼出摇杆，拖动移动，松开隐藏；电脑也可使用 WASD 或方向键。靠近敌人会自动攻击，移动时也能战斗。</p><div class="help-formations"><p><b>${iconMarkup(C.formations[0].icon)} 楔形 · 进攻</b><br>攻击×1.10，镇星自动突进，命中英雄触发荧惑强化集火。</p><p><b>${iconMarkup(C.formations[1].icon)} 圆阵 · 防守</b><br>防御×1.20、攻击×0.90、移动×0.90；分摊单体弹道伤害，持续保持可让荧惑蓄能。</p><p><b>${iconMarkup(C.formations[2].icon)} 横阵 · 分散</b><br>攻击×0.95，远程射程×1.20；拉开队形，重华生成减速区域。</p></div><h3>星尘与觉醒</h3><p>地图开局随机散落${C.scatter.initial}枚星尘，每${C.scatter.interval}秒补充${C.scatter.batch}枚，每枚${C.scatter.value}点。普通野怪掉落3点，精英掉落10点。星核45秒出现，单队连续占领2秒获得15点。争夺时暂停，受英雄伤害中断。累计每25点三选一觉醒，10秒未选自动选择；战斗持续进行。</p><h3>生存与胜负</h3><p>英雄拥有独立生命，阵亡不能复活。全队淘汰掉落一半星尘。105秒暗幕收缩，150秒形成最终安全区。只剩一队立即决胜；180秒按存活优先，再比较星尘、存活人数和队伍击杀数，完全同分可并列。</p><button id="help-close" class="primary">准备出征</button>`;$('help-close').onclick=()=>this.closeModal();
+      $('modal').classList.remove('hidden');$('modal-content').innerHTML=`<h2>出征手册</h2><h3>带领整支小队</h3><p>按住战场任意空白处呼出摇杆，拖动移动，松开隐藏；电脑也可使用 WASD 或方向键。靠近敌人会自动攻击，移动时也能战斗。</p><div class="help-formations">${formationHelp()}</div><h3>星尘与觉醒</h3><p>地图开局随机散落${C.scatter.initial}枚星尘，每${C.scatter.interval}秒补充${C.scatter.batch}枚，每枚${C.scatter.value}点。普通野怪掉落3点，精英掉落10点。星核45秒出现，单队连续占领2秒获得15点。争夺时暂停，离场清零，受英雄伤害不中断。累计每${C.awakeningStep}点三选一觉醒，10秒未选自动选择；战斗持续进行。</p><h3>生存与胜负</h3><p>英雄拥有独立生命，阵亡不能复活。全队淘汰掉落一半星尘。105秒暗幕收缩，150秒形成最终安全区。只剩一队立即决胜；180秒按存活优先，再比较星尘、存活人数和队伍击杀数，完全同分可并列。</p><button id="help-close" class="primary">准备出征</button>`;$('help-close').onclick=()=>this.closeModal();
     }
     spectate(direction){const live=this.sim.teams.filter(t=>t.eliminatedAt==null);if(!live.length)return;const index=live.findIndex(t=>t.id===this.viewTeam);this.viewTeam=live[(Math.max(0,index)+direction+live.length)%live.length].id;this.renderer.lastTeam=-1;}
     showResults(){

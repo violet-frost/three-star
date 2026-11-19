@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+ <defs><linearGradient id="leaf" x1="15" y1="17" x2="45" y2="47" gradientUnits="userSpaceOnUse"><stop stop-color="#fff7c6"/><stop offset=".48" stop-color="#e7b94f"/><stop offset="1" stop-color="#aa6b24"/></linearGradient><linearGradient id="gold" x1="12" y1="40" x2="49" y2="58" gradientUnits="userSpaceOnUse"><stop stop-color="#fff4bb"/><stop offset="1" stop-color="#ca9441"/></linearGradient></defs>
+ <path d="M32 51V31" stroke="#a46d2a" stroke-width="4" stroke-linecap="round"/>
+ <path d="M32 37C17 39 9 30 9 17c14 0 24 7 23 20Z" fill="url(#leaf)" stroke="#815421" stroke-width="1.8" stroke-linejoin="round"/>
+ <path d="M32 32c-1-15 7-24 21-25 1 15-7 25-21 25Z" fill="url(#leaf)" stroke="#815421" stroke-width="1.8" stroke-linejoin="round"/>
+ <path d="m16 23 15 13m15-21L33 30" stroke="#fff9dc" stroke-width="1.7" stroke-linecap="round"/>
+ <path d="m15 48 17 8 17-8-17-6Z" fill="url(#gold)" stroke="#a37938" stroke-width="1.6"/>
+ <path d="M32 43v10" stroke="#faf0b1" stroke-width="2" stroke-linecap="round"/>
+ <circle cx="49" cy="37" r="11" fill="#fff5d0" stroke="#af8135" stroke-width="1.8"/>
+ <path d="M49 31v12m-6-6h12" stroke="#a46d2a" stroke-width="3.5" stroke-linecap="round"/>
+ <path d="m12 41 1.4 4.1 4.1 1.4-4.1 1.4L12 52l-1.4-4.1-4.1-1.4 4.1-1.4Z" fill="#fff0b4" stroke="#b18a43" stroke-width=".8"/>
+</svg>
