@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#1b2d31">
+  <meta name="description" content="三芒星：三英雄小队、阵型博弈与星尘争夺。单人挑战三支AI的竖屏竞技游戏。">
+  <title>三芒星 · 星尘竞技场</title>
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="desktop-ambient" aria-hidden="true"></div>
+  <main class="stage">
+    <aside class="side left-side">
+      <div class="brand-mark">✦</div><h1>三芒星</h1><p class="side-subtitle">星尘竞技场</p>
+      <div class="rule-line"></div>
+      <p class="side-intro">移动决定位置<br>阵型决定战术</p>
+      <div class="hero-roster">
+        <div><i class="portrait h0"></i><span><b>镇星</b><small>前排战士 · 破阵突进</small></span></div>
+        <div><i class="portrait h1"></i><span><b>荧惑</b><small>火焰法师 · 穿透集火</small></span></div>
+        <div><i class="portrait h2"></i><span><b>重华</b><small>自然辅助 · 绊索控场</small></span></div>
+      </div>
+      <div class="keyboard-guide"><p><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> / 方向键移动</p><p><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> 切换阵型</p><p><kbd>空格</kbd> 暂停　<kbd>F</kbd> 全屏</p></div>
+      <p class="side-footnote">一支小队，三种战术。<br>靠近敌人，英雄自动攻击。</p>
+    </aside>
+
+    <section class="game-shell" id="game-shell" aria-label="三芒星游戏">
+      <canvas id="battle" aria-label="战场画面"></canvas>
+      <section id="menu" class="screen menu-screen">
+        <div class="menu-cover"></div><div class="menu-shade"></div>
+        <div class="menu-heading"><div class="title-star">✦</div><h2>三芒星</h2><p>星 尘 竞 技 场</p></div>
+        <div class="menu-bottom">
+          <p class="menu-premise">三英雄小队 · 阵型博弈 · 星尘争夺</p>
+          <div class="menu-spec"><span>单人挑战 · 3支AI</span><span>每局180秒</span></div>
+          <button id="start" class="primary large">开始挑战 <span>✦</span></button>
+          <div class="menu-secondary"><button data-action="help">操作说明</button><button data-action="settings">设置</button></div>
+          <p id="last-result" class="last-result">集结小队，争夺中央星核。</p>
+        </div>
+      </section>
+
+      <section id="hud" class="hud hidden" aria-label="战斗操作">
+        <div class="top-line"><div class="phase-label" id="phase">开局发育</div><div id="timer" class="timer">03:00</div><button id="pause" aria-label="暂停">Ⅱ</button></div>
+        <div id="leaderboard" class="leaderboard"></div>
+        <div class="resource-line"><span id="dust-count">✦ 0</span><div class="growth"><div id="growth-fill"></div></div><span id="growth-label">0 / 25</span></div>
+        <div id="core-status" class="core-status">星核将在45秒后出现</div>
+        <div id="hero-panel" class="hero-panel"></div>
+        <canvas id="mini" width="144" height="192" class="mini" aria-label="战场小地图"></canvas>
+        <div id="toast" class="toast hidden" role="status"></div>
+        <div id="tutorial" class="tutorial"></div>
+        <div id="storm-warning" class="storm-warning hidden">正在受到暗幕伤害 · 向安全区移动</div>
+        <div id="awakening" class="awakening hidden"><div class="awakening-heading"><span>✦ 觉醒已就绪</span><small id="choice-time"></small></div><div id="awakening-cards" class="awakening-cards"></div></div>
+        <div id="spectator" class="spectator hidden"><b>小队已淘汰 · 继续观战</b><div><button id="spectate-prev" aria-label="观战上一队">‹</button><span id="spectate-name"></span><button id="spectate-next" aria-label="观战下一队">›</button></div><button id="spectate-return">返回开始界面</button></div>
+        <div class="bottom-controls" id="bottom-controls">
+          <div id="joystick" class="joystick" role="group" aria-label="拖动摇杆移动小队"><div class="joystick-arrows">⌃<br><span>‹　›</span><br>⌄</div><div id="stick" class="stick"></div></div>
+          <div class="formation-controls" id="formations">
+            <button data-formation="0" class="formation active"><i>△</i><span><b>楔形</b><small>进攻</small></span><em class="key-hint">1</em><div class="cooldown"></div></button>
+            <button data-formation="1" class="formation"><i>◉</i><span><b>圆阵</b><small>防守</small></span><em class="key-hint">2</em><div class="cooldown"></div></button>
+            <button data-formation="2" class="formation"><i>↔</i><span><b>横阵</b><small>分散</small></span><em class="key-hint">3</em><div class="cooldown"></div></button>
+          </div>
+        </div>
+        <div class="bottom-label" id="formation-description">楔形 · 集火突破</div>
+      </section>
+      <div id="countdown" class="countdown hidden"><small id="countdown-caption">小队集结</small><b id="countdown-number">3</b></div>
+
+      <section id="results" class="screen results-screen hidden">
+        <div class="result-emblem">✦</div><p id="result-kicker">战斗结束</p><h2 id="result-title">最终名次</h2><p id="result-subtitle"></p>
+        <div id="result-teams" class="result-teams"></div>
+        <div id="result-detail" class="result-detail"></div>
+        <button id="restart" class="primary">再次挑战</button><button id="result-return" class="text-button">返回开始界面</button>
+      </section>
+
+      <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-label="游戏对话框"><div id="modal-content" class="modal-card"></div></div>
+      <div id="loading" class="loading">正在集结小队…</div>
+      <div class="frame-corner tl"></div><div class="frame-corner tr"></div><div class="frame-corner bl"></div><div class="frame-corner br"></div>
+    </section>
+
+    <aside class="side right-side">
+      <p class="field-heading">战场情报</p><canvas id="tactical-map" width="240" height="320" aria-label="战场总览"></canvas>
+      <div class="map-caption"><span>◆ 小队位置</span><span>✦ 中央星核</span></div>
+      <div class="side-objective"><b id="objective-title">争夺星尘，存活至终局</b><p id="objective-description">击败野怪获取星尘，每累计25点获得一次觉醒。中央星核在45秒出现，成功占领获得15点星尘。</p></div>
+      <div class="side-phases"><p><span>45秒</span> 星核出现 · 精英降临</p><p><span>105秒</span> 暗幕开始收缩</p><p><span>150秒</span> 最终安全区形成</p></div>
+      <button id="fullscreen" class="side-button">展开战场 ⛶</button>
+    </aside>
+  </main>
+  <script src="src/config.js"></script><script src="src/rules.js"></script><script src="src/simulation.js"></script><script src="src/render.js"></script><script src="src/audio.js"></script><script src="src/app.js"></script>
+</body>
+</html>

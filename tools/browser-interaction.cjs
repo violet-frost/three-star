@@ -1,0 +1,27 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),{pathToFileURL}=require('node:url'),CDP=require('./browser-check.cjs');
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+(async()=>{
+ const tabs=await(await fetch('http://127.0.0.1:9227/json')).json(),c=await new CDP().connect(tabs.find(t=>t.type==='page').webSocketDebuggerUrl),errors=[];
+ c.onEvent=e=>{if(e.method==='Runtime.exceptionThrown')errors.push(e.params.exceptionDetails);};await c.call('Runtime.enable');await c.call('Page.enable');await c.call('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:2,mobile:true});await c.call('Emulation.setTouchEmulationEnabled',{enabled:true,maxTouchPoints:5});
+ await c.call('Page.navigate',{url:'http://127.0.0.1:8080'});await wait(1000);await c.eval(`document.querySelector('#start').click()`);await wait(3300);
+ const joy=await c.eval(`(()=>{const r=document.querySelector('#joystick').getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2,sign:ThreeStar.app.sim.teams[0].center.x<1200?1:-1};})()`),one={x:joy.x+joy.sign*30,y:joy.y,id:1};
+ const touch=(type,points)=>c.call('Input.dispatchTouchEvent',{type,touchPoints:points});
+ await touch('touchStart',[{x:joy.x,y:joy.y,id:1}]);await touch('touchMove',[one]);const before=await c.eval('({...ThreeStar.app.sim.teams[0].center})');
+ const form=await c.eval(`(()=>{const r=document.querySelector('[data-formation="1"]').getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2,id:2};})()`);
+ await touch('touchStart',[one,form]);await touch('touchEnd',[form]);await wait(500);
+ const switched=await c.eval('({formation:ThreeStar.app.sim.teams[0].formation,stick:ThreeStar.app.stick,center:ThreeStar.app.sim.teams[0].center})');assert.equal(switched.formation,1);assert.ok(Math.abs(switched.stick.x)>.2);assert.ok(Math.hypot(switched.center.x-before.x,switched.center.y-before.y)>20);console.log('PASS 双指：摇杆移动同时换阵');
+ await c.eval(`ThreeStar.app.sim.generated+=25;ThreeStar.app.sim.gain(ThreeStar.app.sim.teams[0],25,'browser-fixture');ThreeStar.app.updateHUD()`);
+ const card=await c.eval(`(()=>{const r=document.querySelector('[data-awaken]').getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2,id:2};})()`);
+ await touch('touchStart',[one,card]);await touch('touchEnd',[card]);await wait(200);const choice=await c.eval('({pending:ThreeStar.app.sim.teams[0].pending,stick:ThreeStar.app.stick})');assert.equal(choice.pending,0);assert.ok(Math.abs(choice.stick.x)>.2);console.log('PASS 双指：持续移动同时选择觉醒');await touch('touchEnd',[]);await wait(50);assert.equal(await c.eval('ThreeStar.app.stick.x'),0);
+ await c.eval(`ThreeStar.app.sim.time=10;ThreeStar.app.sim.frame=300;ThreeStar.app.sim.teams[0].heroes.forEach(h=>ThreeStar.app.sim.queueDamage(null,h,999,'storm'));ThreeStar.app.sim.resolveDamage();ThreeStar.app.processEvents();ThreeStar.app.updateHUD()`);
+ assert.equal(await c.eval(`document.querySelector('#spectator').classList.contains('hidden')`),false);assert.notEqual(await c.eval('ThreeStar.app.viewTeam'),0);const spec=await c.eval('ThreeStar.app.viewTeam');await c.eval(`document.querySelector('#spectate-next').click()`);assert.notEqual(await c.eval('ThreeStar.app.viewTeam'),spec);console.log('PASS 淘汰观战与切换队伍');
+ await c.eval(`document.querySelector('#pause').click()`);const frozen=await c.eval('ThreeStar.app.sim.time');await wait(700);assert.equal(await c.eval('ThreeStar.app.sim.time'),frozen);console.log('PASS 暂停冻结战斗');
+ await c.eval(`document.querySelector('#resume').click()`);assert.equal(await c.eval('ThreeStar.app.mode'),'countdown');console.log('PASS 恢复3秒倒计时');
+ // Direct file protocol is a separate deliverable path; no local web server is needed.
+ const file=pathToFileURL(path.resolve(__dirname,'../index.html')).href;await c.call('Page.navigate',{url:file});await wait(1300);assert.equal(await c.eval('ThreeStar.app.mode'),'menu');assert.ok(await c.eval('ThreeStar.app.renderer.atlas.naturalWidth>0&&ThreeStar.app.renderer.floor.naturalWidth>0'));
+ await c.eval(`document.querySelector('#start').click()`);await wait(3200);assert.equal(await c.eval('ThreeStar.app.mode'),'playing');console.log('PASS file:// 离线加载和开局');
+ await c.call('Emulation.setDeviceMetricsOverride',{width:360,height:640,deviceScaleFactor:1,mobile:true});await wait(100);assert.equal(await c.eval('document.documentElement.scrollWidth'),360);
+ const buttons=await c.eval(`[...document.querySelectorAll('[data-formation]')].map(e=>e.getBoundingClientRect().toJSON())`);for(const b of buttons)assert.ok(b.x>=0&&b.right<=360&&b.y>=0&&b.bottom<=640);console.log('PASS 360×640 小屏控件在可视区内');
+ const out=path.resolve(__dirname,'../output');fs.mkdirSync(out,{recursive:true});const screenshot=await c.call('Page.captureScreenshot',{format:'png'});fs.writeFileSync(path.join(out,'offline-small-screen.png'),Buffer.from(screenshot.data,'base64'));
+ await c.eval(`ThreeStar.app.pause()`);assert.deepEqual(errors,[]);console.log('PASS 浏览器运行无未处理异常');c.close();
+})().catch(e=>{console.error(e);process.exit(1);});
