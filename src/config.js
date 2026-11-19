@@ -3,7 +3,7 @@
   'use strict';
   const T=G.ThreeStar=G.ThreeStar||{};
   T.Config={
-    version:'0.2.1-web',tick:1/30,duration:180,countdown:3,protection:3,
+    version:'0.2.3-web',tick:1/30,duration:180,countdown:3,protection:3,
     speed:180,heroRadius:12,centerRadius:90,formationCooldown:1,formationBlend:.3,
     followSpeed:360,followStep:12,returnDistance:220,searchRadius:220,searchInterval:.2,
     pickupRadius:28,awakeningStep:25,awakeningCap:6,choiceTimeout:10,
@@ -16,9 +16,9 @@
       elites:[{x:900,y:1200},{x:1500,y:1200},{x:900,y:2000},{x:1500,y:2000}],
       obstacles:[{x:1000,y:850,w:400,h:200},{x:1000,y:2150,w:400,h:200},{x:350,y:1400,w:200,h:400},{x:1850,y:1400,w:200,h:400}]},
     formations:[
-      {id:0,name:'楔形',role:'进攻',icon:'△',attack:1.1,defense:1,move:1,coverage:1,slots:[[0,40],[-24,0],[24,-40]],duo:[[0,24],[0,-24]],description:'集火突破 · 镇星自动突进'},
-      {id:1,name:'圆阵',role:'防守',icon:'◉',attack:.9,defense:1.2,move:.9,coverage:1,slots:[[0,36],[-31,-18],[31,-18]],duo:[[-24,0],[24,0]],description:'单体弹道分摊 · 荧惑蓄能'},
-      {id:2,name:'横阵',role:'分散',icon:'↔',attack:.95,defense:1,move:1,coverage:1.2,slots:[[0,0],[-72,0],[72,0]],duo:[[-48,0],[48,0]],description:'远程覆盖扩大 · 重华释放绊索'}],
+      {id:0,name:'楔形',role:'进攻',icon:'wedge',attack:1.1,defense:1,move:1,coverage:1,slots:[[0,40],[-24,0],[24,-40]],duo:[[0,24],[0,-24]],description:'集火突破 · 镇星自动突进'},
+      {id:1,name:'圆阵',role:'防守',icon:'circle',attack:.9,defense:1.2,move:.9,coverage:1,slots:[[0,36],[-31,-18],[31,-18]],duo:[[-24,0],[24,0]],description:'单体弹道分摊 · 荧惑蓄能'},
+      {id:2,name:'横阵',role:'分散',icon:'line',attack:.95,defense:1,move:1,coverage:1.2,slots:[[0,0],[-72,0],[72,0]],duo:[[-48,0],[48,0]],description:'远程覆盖扩大 · 重华释放绊索'}],
     heroes:[
       {id:0,name:'镇星',role:'前排 / 突进',hp:140,atk:12,def:8,interval:1,range:45,windup:.15,recovery:.2,projectileSpeed:0,maxHits:Infinity,skill:'破阵',skillCd:6,skillWindup:.15,skillRecovery:.2,skillMin:60,skillRange:160,dashSpeed:600,dashDistance:120,skillDamage:1.5,knockback:40},
       {id:1,name:'荧惑',role:'法师 / 穿透',hp:80,atk:20,def:2,interval:1.5,range:180,windup:.2,recovery:.25,projectileSpeed:420,maxHits:2,skill:'蓄能',skillCd:8,skillWindup:.3,skillRecovery:0,chargeWait:2,markDuration:4},
@@ -31,9 +31,9 @@
       {id:0,code:'A01',name:'锐意',icon:'⚔',category:'战斗',max:3,value:.10,description:'全队基础攻击力 +10%'},
       {id:1,code:'A02',name:'疾攻',icon:'»',category:'战斗',max:3,value:.10,description:'全队攻击速度 +10%'},
       {id:2,code:'A03',name:'生机',icon:'✚',category:'战斗',max:3,value:15,description:'存活英雄生命上限与当前生命 +15'},
-      {id:3,code:'A04',name:'锋势',icon:'△',category:'阵型',max:3,value:.10,description:'楔形阵攻击倍率 +0.10'},
-      {id:4,code:'A05',name:'坚守',icon:'◈',category:'阵型',max:3,value:.10,description:'圆阵防御倍率 +0.10'},
-      {id:5,code:'A06',name:'展翼',icon:'↔',category:'阵型',max:3,value:.20,description:'横阵远程基础覆盖额外 +20%'},
+      {id:3,code:'A04',name:'锋势',icon:'wedge',category:'阵型',max:3,value:.10,description:'楔形阵攻击倍率 +0.10'},
+      {id:4,code:'A05',name:'坚守',icon:'circle',category:'阵型',max:3,value:.10,description:'圆阵防御倍率 +0.10'},
+      {id:5,code:'A06',name:'展翼',icon:'line',category:'阵型',max:3,value:.20,description:'横阵远程基础覆盖额外 +20%'},
       {id:6,code:'A07',name:'共鸣',icon:'✧',category:'协同',max:3,value:.15,requires:[0,1],description:'破阵集火伤害倍率 +0.15'},
       {id:7,code:'A08',name:'缠绕',icon:'❧',category:'协同',max:3,value:1,requires:[2],description:'重华普攻减速、绊索离场减速 +1秒'},
       {id:8,code:'A09',name:'余荧惑守护',icon:'◇',category:'协同',max:1,value:20,duration:3,description:'英雄阵亡后，存活队友获得20护盾，持续3秒'}]

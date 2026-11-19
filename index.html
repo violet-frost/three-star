@@ -40,23 +40,25 @@
       </section>
 
       <section id="hud" class="hud hidden" aria-label="战斗操作">
-        <div class="top-line"><div class="phase-label" id="phase">开局发育</div><div id="timer" class="timer">03:00</div><button id="pause" aria-label="暂停">Ⅱ</button></div>
+        <div class="top-line"><div id="timer" class="timer">03:00</div><button id="pause" aria-label="暂停">Ⅱ</button></div>
         <div id="leaderboard" class="leaderboard"></div>
         <div class="resource-line"><span id="dust-count">✦ 0</span><div class="growth"><div id="growth-fill"></div></div><span id="growth-label">0 / 25</span></div>
-        <div id="core-status" class="core-status">星核将在45秒后出现</div>
+        <div class="notification-stack" aria-label="战场提示">
+          <div id="core-status" class="core-status">星核将在45秒后出现</div>
+          <div id="toast" class="toast hidden" role="status"></div>
+          <div id="tutorial" class="tutorial"></div>
+          <div id="storm-warning" class="storm-warning hidden">正在受到暗幕伤害 · 向安全区移动</div>
+        </div>
         <div id="hero-panel" class="hero-panel"></div>
         <canvas id="mini" width="144" height="192" class="mini" aria-label="战场小地图"></canvas>
-        <div id="toast" class="toast hidden" role="status"></div>
-        <div id="tutorial" class="tutorial"></div>
-        <div id="storm-warning" class="storm-warning hidden">正在受到暗幕伤害 · 向安全区移动</div>
         <div id="awakening" class="awakening hidden"><div class="awakening-heading"><span>✦ 觉醒已就绪</span><small id="choice-time"></small></div><div id="awakening-cards" class="awakening-cards"></div></div>
         <div id="spectator" class="spectator hidden"><b>小队已淘汰 · 继续观战</b><div><button id="spectate-prev" aria-label="观战上一队">‹</button><span id="spectate-name"></span><button id="spectate-next" aria-label="观战下一队">›</button></div><button id="spectate-return">返回开始界面</button></div>
+        <div id="joystick" class="joystick" aria-hidden="true"><div class="joystick-arrows">⌃<br><span>‹　›</span><br>⌄</div><div id="stick" class="stick"></div></div>
         <div class="bottom-controls" id="bottom-controls">
-          <div id="joystick" class="joystick" role="group" aria-label="拖动摇杆移动小队"><div class="joystick-arrows">⌃<br><span>‹　›</span><br>⌄</div><div id="stick" class="stick"></div></div>
           <div class="formation-controls" id="formations">
-            <button data-formation="0" class="formation active"><i>△</i><span><b>楔形</b><small>进攻</small></span><em class="key-hint">1</em><div class="cooldown"></div></button>
-            <button data-formation="1" class="formation"><i>◉</i><span><b>圆阵</b><small>防守</small></span><em class="key-hint">2</em><div class="cooldown"></div></button>
-            <button data-formation="2" class="formation"><i>↔</i><span><b>横阵</b><small>分散</small></span><em class="key-hint">3</em><div class="cooldown"></div></button>
+            <button data-formation="0" class="formation active"><i data-formation-icon="0" aria-hidden="true"></i><span><b>楔形</b><small>进攻</small></span><em class="key-hint">1</em><div class="cooldown"></div></button>
+            <button data-formation="1" class="formation"><i data-formation-icon="1" aria-hidden="true"></i><span><b>圆阵</b><small>防守</small></span><em class="key-hint">2</em><div class="cooldown"></div></button>
+            <button data-formation="2" class="formation"><i data-formation-icon="2" aria-hidden="true"></i><span><b>横阵</b><small>分散</small></span><em class="key-hint">3</em><div class="cooldown"></div></button>
           </div>
         </div>
         <div class="bottom-label" id="formation-description">楔形 · 集火突破</div>
@@ -79,7 +81,6 @@
       <p class="field-heading">战场情报</p><canvas id="tactical-map" width="240" height="320" aria-label="战场总览"></canvas>
       <div class="map-caption"><span>◆ 小队位置</span><span>✦ 中央星核</span></div>
       <div class="side-objective"><b id="objective-title">争夺星尘，存活至终局</b><p id="objective-description">击败野怪获取星尘，每累计25点获得一次觉醒。中央星核在45秒出现，成功占领获得15点星尘。</p></div>
-      <div class="side-phases"><p><span>45秒</span> 星核出现 · 精英降临</p><p><span>105秒</span> 暗幕开始收缩</p><p><span>150秒</span> 最终安全区形成</p></div>
       <button id="fullscreen" class="side-button">展开战场 ⛶</button>
     </aside>
   </main>

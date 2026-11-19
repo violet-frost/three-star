@@ -12,6 +12,8 @@
 
 `icon.svg` 为代码绘制的星形图标。技能、护盾、血条、弹道、暗幕、地面星尘由Canvas程序绘制；音乐和音效由WebAudio合成，没有外部音频依赖。
 
+V0.2.2新增三个手工编写的矢量游戏图标：`formation-wedge.svg` 为锋刃三角，`formation-circle.svg` 为环形星盾，`formation-line.svg` 为双翼箭头。均使用64×64画布、浅金渐变和星尘细节，无外部字体。`config.js` 中的 `icon` 分别填 `wedge`、`circle`、`line`；`app.js` 的 `iconMarkup` 统一加载对应素材，按钮、阵型觉醒、帮助与战绩共用同一文件。替换SVG即可同步修改全部引用处。
+
 ## 生成提示词
 
 角色图集，模式：使用参考图生成新素材，透明背景。

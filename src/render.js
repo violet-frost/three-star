@@ -63,6 +63,7 @@
       c.setTransform(scale,0,0,scale,0,0);c.fillStyle='#344a3c';c.fillRect(0,0,w,h);c.save();c.translate(-left,-top);
       c.drawImage(this.terrain,Math.max(0,left),Math.max(0,top),Math.min(w,C.map.width-Math.max(0,left)),Math.min(h,C.map.height-Math.max(0,top)),Math.max(0,left),Math.max(0,top),Math.min(w,C.map.width-Math.max(0,left)),Math.min(h,C.map.height-Math.max(0,top)));
       for(const area of sim.areas){c.fillStyle='#42885b40';c.strokeStyle='#8cd99b';c.lineWidth=2;c.beginPath();c.arc(area.x,area.y,area.radius,0,Math.PI*2);c.fill();c.stroke();for(let j=0;j<8;j++){const a=j*Math.PI/4+sim.time;c.fillStyle='#85ba73';c.fillRect(area.x+Math.cos(a)*area.radius*.8,area.y+Math.sin(a)*area.radius*.8,5,3);}}
+      this.drawAttackRange(c,sim,t);
       this.drawCore(c,sim);
       for(const d of sim.drops)if(this.visible(d,left,top,w,h)){const bob=Math.sin(sim.time*4+d.id)*2;c.fillStyle='#9d742f44';c.beginPath();c.ellipse(d.x,d.y+6,9,4,0,0,Math.PI*2);c.fill();this.diamond(c,d.x,d.y-4+bob,d.value>=10?10:7,'#ffdc81','#a77637');}
       for(const team of sim.teams){
@@ -83,6 +84,13 @@
       // Quiet edge shading keeps DOM HUD legible without obscuring the play field.
       let gradient=c.createLinearGradient(0,0,0,210);gradient.addColorStop(0,'#1b2939c9');gradient.addColorStop(1,'#1b293900');c.fillStyle=gradient;c.fillRect(0,0,w,210);
       gradient=c.createLinearGradient(0,h-180,0,h);gradient.addColorStop(0,'#172c3100');gradient.addColorStop(1,'#172c316b');c.fillStyle=gradient;c.fillRect(0,h-180,w,180);
+    }
+    attackRange(sim,team){return R.alive(team).reduce((range,hero)=>Math.max(range,R.distance(hero,team.center)+sim.attrs(hero).range),0);}
+    drawAttackRange(c,sim,team){
+      const radius=this.attackRange(sim,team);if(radius<=0)return;
+      // Outer envelope of living heroes' ranges; walls and individual aim still apply.
+      c.save();c.setLineDash([9,7]);c.lineWidth=4;c.strokeStyle='#80612680';c.beginPath();c.arc(team.center.x,team.center.y,radius,0,Math.PI*2);c.stroke();
+      c.lineWidth=2;c.strokeStyle='#ffe278';c.stroke();c.restore();
     }
     visible(u,l,t,w,h){return u.x>l-100&&u.x<l+w+100&&u.y>t-100&&u.y<t+h+100;}
     diamond(c,x,y,r,color,stroke){c.fillStyle=color;c.strokeStyle=stroke;c.lineWidth=2;c.beginPath();c.moveTo(x,y-r*1.4);c.lineTo(x+r*.65,y);c.lineTo(x,y+r);c.lineTo(x-r*.65,y);c.closePath();c.fill();c.stroke();c.fillStyle='#fff1b7';c.beginPath();c.moveTo(x,y-r*1.2);c.lineTo(x,y+r*.6);c.lineTo(x-r*.45,y);c.fill();}

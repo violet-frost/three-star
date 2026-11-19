@@ -61,3 +61,7 @@ scatter: {
 `ai` 包含决策间隔、撤退生命比、脱战生命比、优势判断、追击距离和时间。所有队伍采用同一战斗和拾取规则。
 
 角色与地面素材在 `assets`，图集行列约定见 `ASSETS.md`。界面颜色与尺寸在 `style.css`；音量和振动由游戏设置界面修改并保存在浏览器本地。
+
+V0.2.2的淡黄星尘界面配置集中在 `style.css` 末尾的 `Stardust glass` 段：`--dust-surface` 控制底色及透明程度（颜色末两位为alpha，越小越透明），`--dust-ink` 控制文字，`--dust-edge` 控制浅金边缘；`.notification-stack` 的 `top` 控制提示区高度。阵型图标在 `assets/formation-*.svg`，配置图标名称为 `wedge`、`circle`、`line`。修改配置名称时，阵型与相应觉醒的引用应保持一致。
+
+V0.2.3的浮动摇杆尺寸在 `.hud .joystick` 的 `width:48.72%`，即战场宽度的48.72%。指针归一化自动按新半径计算，无需同步改移动逻辑。队伍名称与存活人数的字号在末尾 `.leader-entry small`、`.leader-entry em` 中调整。攻击范围圈在 `render.js` 的 `drawAttackRange` 中控制黄色描边和虚线节距；半径读取实时战斗属性，无需另配一个可能失真的固定射程。
