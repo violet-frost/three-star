@@ -79,3 +79,7 @@ V0.3.2的HUD字号与人数左移配置集中在CSS末尾 `HUD readability` 段�
 V0.2.3的浮动摇杆尺寸在 `.hud .joystick` 的 `width:48.72%`，即战场宽度的48.72%。指针归一化自动按新半径计算，无需同步改移动逻辑。队伍名称与存活人数的字号在末尾 `.leader-entry small`、`.leader-entry em` 中调整。攻击范围圈在 `render.js` 的 `drawAttackRange` 中控制黄色描边和虚线节距；半径读取实时战斗属性，无需另配一个可能失真的固定射程。
 
 V0.3.3觉醒进度条读取 `awakeningStep` 和 `awakeningCap`，目标依次为20/40/60/80/100/120；达到6次上限后进度条填满并继续显示累计数量/120。
+
+V0.3.4结算页字号统一在CSS末尾 `Results typography` 段配置：标题30px（小屏25px）、说明12px、排名25px、队名14px、队伍详情11px、星尘20px/标签10px、战绩12px、觉醒标签11px、再次挑战20px、返回13px，均比原字号增加2px。
+
+V0.3.5非阵型觉醒的 `icon` 键为 `attack`、`speed`、`vitality`、`resonance`、`bind`、`guard`，由 `iconMarkup` 加载 `assets/awakening-*.svg`。阵型仍使用 `wedge`、`circle`、`sprout`。选择卡片、结算已选觉醒共享这些素材。卡片排版在CSS末尾 `Awakening cards` 段：标题固定为同高度横排，正文采用伸展行，层数位于底部，避免不同描述长度造成错位。

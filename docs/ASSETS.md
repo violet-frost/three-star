@@ -23,3 +23,21 @@
 地面图，模式：使用参考图生成新素材，不透明背景。
 
 > Use case: stylized-concept. Asset type: complete usable flat top-down 2D pixel-art game arena FLOOR texture, no characters, no UI, no words. Input reference is STYLE AND MATERIAL reference only. Generate a portrait 3:4 orthographic overhead arena floor image that fills the entire image edge to edge, crop contains NO sky, NO labels, NO titles, NO border margins. This is a real game floor: all interior ground must be flat and walkable, NO interior walls, NO trees, NO rocks, NO towers, NO stairs, NO cliffs, NO objects that would need collision. The scene is a tranquil overgrown castle courtyard in fine detailed 16-bit pixel art, warm grey beige stone bricks, sage and olive grass, tiny flowers and soft moss, golden star-shaped inlaid patterns. Geometric layout: four grassy quadrants; wide pale stone paths form an X connecting points at 25%/25%,75%/25%,25%/75%,75%/75% of image to EXACT center 50%/50%. Central flat round stone plaza radius 15% image width, concentric inlaid pale stone rings, four-point golden star mosaic at exact center; central plaza completely flat and open, no crystal. Four flat small circular camp mosaics at the four quadrant points above. A faint walkable outer-ring stone route links the four camps. Only at very outermost 2% of image may there be low pale boundary masonry, burgundy gold banners and small flowers inspired by reference. Muted floor colors so red,green characters stand out, detailed readable stone tiles, restrained floor contrast. True orthographic top-down camera, no perspective, no isometric diamond shape. Must be a seamless single map with EXACT 3:4 ratio. No text, no signs, no arrows, no lights or baked fog, no dark curtain, no enemies or hero figures.
+
+## V0.3.5觉醒图标
+
+六枚新图标为可编辑的64×64 SVG，与现有阵型图标使用同一浅金渐变、棕金描边、奶油白高光与星尘细节，由代码直接绘制，运行不依赖图像生成服务。
+
+| 编号 | 图标文件 | 造型及含义 |
+|---|---|---|
+| A01 锐意 | awakening-attack.svg | 交叉锋刃与星核，攻击强化 |
+| A02 疾攻 | awakening-speed.svg | 闪电锋刃和速度线，攻速强化 |
+| A03 生机 | awakening-vitality.svg | 生命心核与加号，生命上限和当前生命增加 |
+| A04 锋势 | formation-wedge.svg | 原楔形图标，未改动 |
+| A05 坚守 | formation-circle.svg | 原圆阵图标，未改动 |
+| A06 展翼 | formation-sprout.svg | 原浅金新芽治疗图标，未改动 |
+| A07 共鸣 | awakening-resonance.svg | 双焰与共振弧线；已停用，仅总览展示 |
+| A08 缠绕 | awakening-bind.svg | 交织金藤与叶片；已停用，仅总览展示 |
+| A09 余荧惑守护 | awakening-guard.svg | 余焰、星盾与护翼，存活队友获得护盾 |
+
+PNG总览为 `assets/awakening-overview.png`，1440×1440、3×3，A01至A09按行排列。`assets/awakening-overview.html` 是对应自包含展示页；所有图标均嵌入，无联网请求。源码包的 `tools/render-awakening-overview.cjs` 可从真实SVG及当前配置重新生成HTML、PNG并复制到交付目录。复现时先启动9227端口的专用测试Chrome（方式见技术说明），再运行 `node tools/render-awakening-overview.cjs`。游戏正常启动不需要该步骤。

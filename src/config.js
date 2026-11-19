@@ -3,7 +3,7 @@
   'use strict';
   const T=G.ThreeStar=G.ThreeStar||{};
   T.Config={
-    version:'0.3.3-web',tick:1/30,duration:180,countdown:3,protection:3,
+    version:'0.3.5-web',tick:1/30,duration:180,countdown:3,protection:3,
     formationOrder:[1,0,2],initialFormation:0,
     speed:180,heroRadius:12,centerRadius:90,formationCooldown:1,formationBlend:.3,
     followSpeed:360,followStep:12,returnDistance:220,searchRadius:220,searchInterval:.2,
@@ -28,14 +28,14 @@
     ai:{interval:1,retreat:.30,exit:.35,strengthRatio:1.25,chase:300,chaseTimeout:5,hold:2},
     teams:[{name:'星火小队',color:'#69d5fb',symbol:'◆'},{name:'赤曜小队',color:'#ff7679',symbol:'▲'},{name:'翠羽小队',color:'#8cde92',symbol:'✦'},{name:'紫鸢小队',color:'#c09bff',symbol:'●'}],
     awakenings:[
-      {id:0,code:'A01',name:'锐意',icon:'⚔',category:'战斗',max:3,value:.10,description:'全队基础攻击力 +10%'},
-      {id:1,code:'A02',name:'疾攻',icon:'»',category:'战斗',max:3,value:.10,description:'全队攻击速度 +10%'},
-      {id:2,code:'A03',name:'生机',icon:'✚',category:'战斗',max:3,value:15,description:'存活英雄生命上限与当前生命 +15'},
+      {id:0,code:'A01',name:'锐意',icon:'attack',category:'战斗',max:3,value:.10,description:'全队基础攻击力 +10%'},
+      {id:1,code:'A02',name:'疾攻',icon:'speed',category:'战斗',max:3,value:.10,description:'全队攻击速度 +10%'},
+      {id:2,code:'A03',name:'生机',icon:'vitality',category:'战斗',max:3,value:15,description:'存活英雄生命上限与当前生命 +15'},
       {id:3,code:'A04',name:'锋势',icon:'wedge',category:'阵型',max:3,value:.10,description:'楔形阵攻击倍率 +0.10'},
       {id:4,code:'A05',name:'坚守',icon:'circle',category:'阵型',max:3,value:.10,description:'圆阵防御倍率 +0.10'},
       {id:5,code:'A06',name:'展翼',icon:'sprout',category:'阵型',max:3,value:.20,description:'横阵远程基础覆盖额外 +20%'},
-      {id:6,code:'A07',name:'共鸣（已移除）',enabled:false,icon:'✧',category:'停用',max:0,value:0,description:'旧协同已移除，不参与候选'},
-      {id:7,code:'A08',name:'缠绕（已移除）',enabled:false,icon:'❧',category:'停用',max:0,value:0,description:'旧控制已移除，不参与候选'},
-      {id:8,code:'A09',name:'余荧惑守护',icon:'◇',category:'生存',max:1,value:20,duration:3,description:'英雄阵亡后，存活队友获得20护盾，持续3秒'}]
+      {id:6,code:'A07',name:'共鸣（已移除）',enabled:false,icon:'resonance',category:'停用',max:0,value:0,description:'旧协同已移除，不参与候选'},
+      {id:7,code:'A08',name:'缠绕（已移除）',enabled:false,icon:'bind',category:'停用',max:0,value:0,description:'旧控制已移除，不参与候选'},
+      {id:8,code:'A09',name:'余荧惑守护',icon:'guard',category:'生存',max:1,value:20,duration:3,description:'英雄阵亡后，存活队友获得20护盾，持续3秒'}]
   };
 })(globalThis);

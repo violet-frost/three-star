@@ -4,7 +4,7 @@
   function read(key,fallback){try{return JSON.parse(localStorage.getItem(key))??fallback;}catch(_){return fallback;}}
   function save(key,value){try{localStorage.setItem(key,JSON.stringify(value));return true;}catch(_){return false;}}
   // All formation references share the same vector assets, including awakening cards.
-  const iconMarkup=icon=>['wedge','circle','sprout'].includes(icon)?`<img class="formation-icon" src="assets/formation-${icon}.svg" alt="" aria-hidden="true" draggable="false">`:icon;
+  const iconMarkup=icon=>{const file=['wedge','circle','sprout'].includes(icon)?'formation-'+icon:['attack','speed','vitality','resonance','bind','guard'].includes(icon)?'awakening-'+icon:null;return file?`<img class="formation-icon" src="assets/${file}.svg" alt="" aria-hidden="true" draggable="false">`:icon;};
   const formationHelp=()=>C.formationOrder.map(id=>{const f=C.formations[id],detail=[
     '荧惑仅在楔形下累计实际发射的火焰弹，每第三发双倍伤害；切阵保留计数。',
     '镇星的破阵为阵型承伤效果，代全队承受普攻及暗幕伤害，不再突进或击退；镇星阵亡后队友各自承伤。',
@@ -128,7 +128,7 @@
     updateOffer(t){
       const offer=t.offer;$('awakening').classList.toggle('hidden',!offer||this.sim.ended);if(!offer){this.offerKey='';return;}
       const valid=new Set(this.sim.validAwakenings(t).map(a=>a.id)),key=offer.created+':'+offer.ids.join(',')+':'+[...valid].join(',');$('choice-time').textContent=Math.max(0,Math.ceil(offer.expires-this.sim.time))+'秒后自动选择';
-      if(this.offerKey!==key){this.offerKey=key;$('awakening-cards').innerHTML=offer.ids.map(id=>{const a=C.awakenings[id];return `<button class="awakening-card" data-awaken="${id}" ${valid.has(id)?'':'disabled'}><i>${iconMarkup(a.icon)}</i><b>${a.name}</b><p>${a.description}</p><small>${a.category} · ${t.stacks[id]+1}/${a.max}层</small></button>`;}).join('');$('awakening-cards').querySelectorAll('button').forEach(b=>this.combatButton(b,()=>{if(this.mode==='playing'&&this.sim.choose(t,+b.dataset.awaken)){this.offerKey='';this.processEvents();this.updateHUD();}}));}
+      if(this.offerKey!==key){this.offerKey=key;$('awakening-cards').innerHTML=offer.ids.map(id=>{const a=C.awakenings[id];return `<button class="awakening-card" data-awaken="${id}" ${valid.has(id)?'':'disabled'}><div class="awakening-title"><i>${iconMarkup(a.icon)}</i><b>${a.name}</b></div><p>${a.description}</p><small>${a.category} · ${t.stacks[id]+1}/${a.max}层</small></button>`;}).join('');$('awakening-cards').querySelectorAll('button').forEach(b=>this.combatButton(b,()=>{if(this.mode==='playing'&&this.sim.choose(t,+b.dataset.awaken)){this.offerKey='';this.processEvents();this.updateHUD();}}));}
     }
     pause(){if(!['playing','countdown'].includes(this.mode))return;this.mode='paused';this.clearInput();$('countdown').classList.add('hidden');this.showSettings(true);}
     showSettings(paused=false){

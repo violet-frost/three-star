@@ -61,3 +61,25 @@
 
 /* Keep the onboarding hint clear of the wider hero information. */
 .notification-stack .tutorial{width:70%;align-self:flex-end}
+
+/* Results typography: increase every existing text style by 2px. */
+.results-screen .result-emblem{font-size:51px}
+.results-screen>p{font-size:12px}.results-screen h2{font-size:30px}
+.results-screen .result-row .rank{font-size:25px}.results-screen .result-row b{font-size:14px}
+.results-screen .result-row small{font-size:11px}.results-screen .result-row .result-dust{font-size:20px}
+.results-screen .result-row .result-dust small{font-size:10px}
+.results-screen .result-detail{font-size:12px}.results-screen .result-awakenings span{font-size:11px}
+.results-screen .primary{font-size:20px}.results-screen .text-button{font-size:13px}
+@media(max-height:650px){.results-screen .result-emblem{font-size:32px}.results-screen h2{font-size:25px}}
+
+/* Awakening cards share one header row and aligned description/footer rows. */
+.awakening-cards{align-items:stretch}
+.awakening-card{display:grid;grid-template-rows:36px 1fr auto;gap:7px;min-height:132px;padding:8px 6px 9px}
+.awakening-title{display:flex;align-items:center;justify-content:center;gap:4px;min-width:0}
+.awakening-card .awakening-title i{display:grid;place-items:center;width:24px;height:28px;flex:0 0 24px}
+.awakening-card .awakening-title .formation-icon{width:26px;height:26px;filter:drop-shadow(0 1px 1px #75491d30)}
+.awakening-card .awakening-title b{font-size:12px;letter-spacing:0;margin:0;line-height:1.25;text-align:left;white-space:nowrap}
+.awakening-card p{font-size:10px;line-height:1.65;margin:0;align-self:start}
+.awakening-card small{font-size:9px;line-height:1.4;margin:0;padding-top:6px;border-top:1px solid #b98b4230;align-self:end}
+.awakening-card:focus-visible{outline:2px solid #a46d2a;outline-offset:2px}
+@media(max-height:650px){.awakening-card{min-height:119px;padding:6px 5px 7px;gap:5px;grid-template-rows:32px 1fr auto}.awakening-card .awakening-title{gap:3px}.awakening-card .awakening-title i{width:22px;flex-basis:22px}.awakening-card .awakening-title .formation-icon{width:24px;height:24px}.awakening-card .awakening-title b{font-size:11px}.awakening-card p{font-size:9px}.awakening-card small{font-size:8px;padding-top:5px}}
