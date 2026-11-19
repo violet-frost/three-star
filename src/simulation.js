@@ -285,21 +285,33 @@
       }
     }
     wakeAI(){this.teams.forEach(t=>t.aiNext=0);}
+    pickupGoal(t,drop){
+      const alive=R.alive(t),old=t.pickupPlan;
+      if(old?.id===drop.id&&old.formation===t.formation&&old.count===alive.length)return old.goal;
+      const slots=alive.length===3?C.formations[t.formation].slots:alive.length===2?C.formations[t.formation].duo:[[0,0]];
+      // Place a living hero over the drop; the formation center may contain no hero.
+      const choices=slots.map(slot=>{const offset=this.slotPosition(t,slot),goal=R.project({x:drop.x-offset.x+t.center.x,y:drop.y-offset.y+t.center.y},C.centerRadius);
+        return {goal,miss:R.distance({x:goal.x+offset.x-t.center.x,y:goal.y+offset.y-t.center.y},drop)};});
+      choices.sort((a,b)=>(a.miss>C.pickupRadius-6)-(b.miss>C.pickupRadius-6)||R.distance(a.goal,t.center)-R.distance(b.goal,t.center));
+      t.pickupPlan={id:drop.id,formation:t.formation,count:alive.length,goal:choices[0].goal,facing:{...t.facing}};return t.pickupPlan.goal;
+    }
     decide(t){
       const alive=R.alive(t),pos=t.center,center=C.map.center,hp=alive.reduce((s,h)=>s+h.hp,0)/alive.reduce((s,h)=>s+h.maxHp,0),strength=units=>units.reduce((v,h)=>v+h.hp*(1+this.attrs(h).atk/20),0),own=strength(alive);
       const visible=this.teams.filter(o=>o.id!==t.id&&o.eliminatedAt==null).map(o=>({team:o,units:R.alive(o).filter(h=>R.distance(h,pos)<=C.searchRadius)})).filter(o=>o.units.length),enemies=visible.flatMap(o=>o.units).sort((a,b)=>R.distance(a,pos)-R.distance(b,pos)),nearest=enemies[0];
       const monsters=this.monsters.filter(m=>m.hp>0&&R.distance(m,pos)<=C.searchRadius).sort((a,b)=>R.distance(a,pos)-R.distance(b,pos));
       const threat=nearest||monsters.find(m=>m.target?.team===t.id);
       const radius=R.safeRadius(this.time),futureRadius=R.safeRadius(Math.min(180,this.time+5)),danger=R.distance(pos,center)>Math.min(radius-100,futureRadius-100);
+      t.ignoredDrops??=new Map();for(const [id,until] of t.ignoredDrops)if(until<=this.time)t.ignoredDrops.delete(id);
+      if(t.pickupAttempt&&this.time-t.pickupAttempt.at>=C.ai.pickupTimeout){t.ignoredDrops.set(t.pickupAttempt.id,this.time+C.ai.pickupRetry);t.pickupAttempt=null;t.pickupPlan=null;}
       let state,goal,formation=0;
       if(danger){state='进安全区';const dir=R.normalize(pos.x-center.x,pos.y-center.y),r=Math.max(0,futureRadius-150);goal={x:center.x+dir.x*r,y:center.y+dir.y*r};formation=nearest&&R.distance(nearest,pos)<100?1:0;}
       else if(threat&&(hp<C.ai.retreat||visible.some(o=>strength(o.units)>own*C.ai.strengthRatio))){state='撤退';formation=1;const away=R.normalize(pos.x-threat.x,pos.y-threat.y);goal=R.project({x:pos.x+away.x*230,y:pos.y+away.y*230},C.centerRadius);if(R.distance(goal,center)>radius-100)goal={...center};}
       else{
-        const drops=this.drops.filter(d=>R.distance(d,pos)<=220&&!enemies.some(e=>R.pointSegment(e,pos,d).distance<120&&strength(R.alive(this.teams[e.team]))>own)).sort((a,b)=>R.distance(a,pos)-R.distance(b,pos)||b.value-a.value);
-        if(drops.length){state='拾取';goal={x:drops[0].x,y:drops[0].y};}
+        const drops=this.drops.filter(d=>!t.ignoredDrops.has(d.id)&&R.distance(d,pos)<=220&&!enemies.some(e=>R.pointSegment(e,pos,d).distance<120&&strength(R.alive(this.teams[e.team]))>own)).sort((a,b)=>R.distance(a,pos)-R.distance(b,pos)||b.value-a.value);
+        if(drops.length){state='拾取';if(t.pickupAttempt?.id!==drops[0].id)t.pickupAttempt={id:drops[0].id,at:this.time};goal=this.pickupGoal(t,drops[0]);}
         else if(nearest&&(hp>=.3)&&(visible.some(o=>{const a=R.alive(o.team);return a.reduce((s,h)=>s+h.hp,0)/a.reduce((s,h)=>s+h.maxHp,0)<.3;})||enemies.some(e=>alive.some(h=>R.distance(h,e)<=this.attrs(h).range)))){
           state='接战';goal={x:nearest.x,y:nearest.y};formation=enemies.filter(h=>R.distance(h,pos)<=150).length>=3?2:0;
-          if(R.distance(pos,nearest)<65)goal={...pos};
+          if(R.distance(pos,nearest)<65&&alive.some(h=>R.distance(h,nearest)<=this.attrs(h).range&&R.lineClear(h,nearest)))goal={...pos};
           if(t.chaseStart&&R.distance(t.chaseStart,goal)>C.ai.chase||this.time-t.lastCombat>5&&t.aiState==='接战'){state='巡逻';goal={...center};}else t.chaseStart??={...pos};
         }else if(this.core.active&&hp>=.3){state='争核';goal={...center};if(R.distance(pos,center)<25){goal={...pos};formation=nearest?0:1;}}
         else{
@@ -309,20 +321,21 @@
             for(let i=0;i<camps.length;i++)if(R.distance(pos,camps[i])<170&&!this.monsters.some(m=>m.hp>0&&R.distance(m,camps[i])<150))t.visited.add(i);
             const unseen=camps.map((p,i)=>({...p,index:i})).filter(p=>!t.visited.has(p.index));unseen.sort((a,b)=>R.distance(a,pos)-R.distance(b,pos));target=unseen[0];
           }
-          if(target){state='刷野';goal={x:target.x,y:target.y};if(target.kind==='monster'&&R.distance(target,pos)<55)goal={...pos};}
+          if(target){state='刷野';goal={x:target.x,y:target.y};if(target.kind==='monster'&&R.distance(target,pos)<55&&alive.some(h=>R.distance(h,target)<=this.attrs(h).range&&R.lineClear(h,target)))goal={...pos};}
           else{state='巡逻';const angle=t.id*Math.PI/2+this.time*.07;goal={x:center.x+Math.cos(angle)*110,y:center.y+Math.sin(angle)*110};}
         }
       }
       if(state!=='接战')t.chaseStart=null;
+      if(state!=='拾取'){t.pickupAttempt=null;t.pickupPlan=null;}
       // Heal safely when injured; protect with the tank when under threat.
       if(!threat&&t.heroes[2].hp>0&&alive.some(h=>h.hp<h.maxHp-2))formation=2;
       if(formation===1&&t.heroes[0].hp<=0)formation=t.heroes[2].hp>0?2:0;
       const urgent=['进安全区','撤退','拾取','争核'].includes(state),retain=t.goal&&this.time-(t.goalAt||0)<C.ai.hold&&state===t.aiState&&!urgent;
       if(!retain){t.goal=R.project(goal,C.centerRadius);t.goalAt=this.time;}
       t.aiState=state;this.changeFormation(t,formation);
-      if(!t.pathTarget||R.distance(t.pathTarget,t.goal)>30||!t.path.length){t.path=R.route(pos,t.goal);t.pathTarget={...t.goal};}
+      if(!t.pathTarget||R.distance(t.pathTarget,t.goal)>6||!t.path.length||!R.lineClear(pos,t.path[0],C.centerRadius)){t.path=R.route(pos,t.goal);t.pathTarget={...t.goal};}
     }
-    aiInput(t){while(t.path.length&&R.distance(t.center,t.path[0])<6)t.path.shift();const goal=t.path[0];if(!goal)return {x:0,y:0};return R.normalize(goal.x-t.center.x,goal.y-t.center.y);}
+    aiInput(t){while(t.path.length&&R.distance(t.center,t.path[0])<6)t.path.shift();const goal=t.path[0];if(!goal){if(t.aiState==='拾取'&&t.pickupPlan)t.facing={...t.pickupPlan.facing};return {x:0,y:0};}return R.normalize(goal.x-t.center.x,goal.y-t.center.y);}
     resourceBalance(){return this.generated-this.removed-this.teams.reduce((s,t)=>s+t.carried,0)-this.drops.reduce((s,d)=>s+d.value,0);}
     finish(reason){if(this.ended)return;this.ended=true;this.reason=reason;this.rankings=R.rank(this.teams);this.teams.forEach(t=>{t.offer=null;t.pending=0;});this.emit('match_end',{reason,duration:this.time,balance:this.resourceBalance()});}
     summary(){return {seed:this.seed,config:C.version,time:this.time,reason:this.reason,generated:this.generated,removed:this.removed,balance:this.resourceBalance(),teams:this.teams.map(t=>({id:t.id,name:t.name,rank:(this.rankings||R.rank(this.teams)).find(x=>x.team.id===t.id).rank,dust:t.eliminatedAt==null?t.carried:t.dustBefore,earned:t.earned,alive:R.alive(t).length,heroKills:t.heroKills,teamKills:t.teamKills,damage:t.damage,survival:t.eliminatedAt??this.time,awakenings:t.stacks,formationTime:t.formationTime})),events:this.logs};}

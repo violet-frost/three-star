@@ -3,7 +3,7 @@
   'use strict';
   const T=G.ThreeStar=G.ThreeStar||{};
   T.Config={
-    version:'0.3.5-web',tick:1/30,duration:180,countdown:3,protection:3,
+    version:'0.3.7-web',tick:1/30,duration:180,countdown:3,protection:3,
     formationOrder:[1,0,2],initialFormation:0,
     speed:180,heroRadius:12,centerRadius:90,formationCooldown:1,formationBlend:.3,
     followSpeed:360,followStep:12,returnDistance:220,searchRadius:220,searchInterval:.2,
@@ -25,7 +25,7 @@
       {id:1,name:'荧惑',role:'法师 / 蓄能',hp:80,atk:20,def:2,interval:1.5,range:180,windup:.2,recovery:.25,projectileSpeed:420,maxHits:2,effect:'蓄能',chargeEvery:3,chargeDamage:2},
       {id:2,name:'重华',role:'辅助 / 治疗',hp:80,atk:8,def:3,interval:1.2,range:150,windup:.15,recovery:.2,projectileSpeed:360,maxHits:1,effect:'复苏',healInterval:1,healAmount:2}],
     monsters:{normal:{hp:40,atk:6,def:0,speed:100,interval:1.2,windup:.2,range:30,radius:12,aggro:160,leash:260,reward:3},elite:{hp:160,atk:12,def:4,speed:120,interval:1.5,windup:.3,range:40,radius:20,aggro:180,leash:300,reward:10},waves:[45,90,135],returnSpeed:180},
-    ai:{interval:1,retreat:.30,exit:.35,strengthRatio:1.25,chase:300,chaseTimeout:5,hold:2},
+    ai:{interval:1,retreat:.30,exit:.35,strengthRatio:1.25,chase:300,chaseTimeout:5,hold:2,pickupTimeout:8,pickupRetry:10},
     teams:[{name:'星火小队',color:'#69d5fb',symbol:'◆'},{name:'赤曜小队',color:'#ff7679',symbol:'▲'},{name:'翠羽小队',color:'#8cde92',symbol:'✦'},{name:'紫鸢小队',color:'#c09bff',symbol:'●'}],
     awakenings:[
       {id:0,code:'A01',name:'锐意',icon:'attack',category:'战斗',max:3,value:.10,description:'全队基础攻击力 +10%'},

@@ -83,3 +83,8 @@ V0.3.3觉醒进度条读取 `awakeningStep` 和 `awakeningCap`，目标依次为
 V0.3.4结算页字号统一在CSS末尾 `Results typography` 段配置：标题30px（小屏25px）、说明12px、排名25px、队名14px、队伍详情11px、星尘20px/标签10px、战绩12px、觉醒标签11px、再次挑战20px、返回13px，均比原字号增加2px。
 
 V0.3.5非阵型觉醒的 `icon` 键为 `attack`、`speed`、`vitality`、`resonance`、`bind`、`guard`，由 `iconMarkup` 加载 `assets/awakening-*.svg`。阵型仍使用 `wedge`、`circle`、`sprout`。选择卡片、结算已选觉醒共享这些素材。卡片排版在CSS末尾 `Awakening cards` 段：标题固定为同高度横排，正文采用伸展行，层数位于底部，避免不同描述长度造成错位。
+
+
+V0.3.6 AI拾取参数：`ai.pickupTimeout=8` 为同一星尘目标的最长连续尝试秒数；`ai.pickupRetry=10` 为超时后的暂时跳过秒数。超时只改变AI选目标，不改变星尘位置、价值、拾取距离或资源总量。`pickupGoal` 使用当前阵型的 `slots/duo` 和存活人数，调整阵型站位时无需另外修改拾取坐标。
+
+阵型高亮与冷却小标签样式位于 `style.css` 的 `.formation.active`、`.cooldown`，状态在 `App.updateHUD` 中与仿真阵型同步。高亮不使用过渡动画，避免旧状态残留。
